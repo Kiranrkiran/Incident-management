@@ -1,0 +1,13 @@
+{
+  "name": "incidentmanagementcapfive-cds",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@sap/cds-dk": "^10.0.1"
+  },
+  "sapux": [
+    "app/incidentscapfive"
+  ],
+  "dependencies": {
+    "@sap/cds": "^10.0.3"
+  }
+}
