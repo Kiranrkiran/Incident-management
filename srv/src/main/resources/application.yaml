@@ -5,3 +5,14 @@ spring:
   sql.init.platform: h2
 cds:
   data-source.auto-config.enabled: false
+
+...
+---
+cds:
+  security:
+    mock.users:
+      alice:
+        roles: [ admin, support ]
+      bob:
+        roles: [ support ]
+
