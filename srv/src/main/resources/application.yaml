@@ -12,13 +12,12 @@ cds:
   security:
     mock:
       users:
-        bob:
-          roles:
-          - support
         alice:
           roles:
-          - admin
           - support
+        bob:
+          roles:
+          - admin
 management:
   endpoint:
     health:

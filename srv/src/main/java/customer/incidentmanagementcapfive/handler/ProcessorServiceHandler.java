@@ -34,7 +34,7 @@ public class ProcessorServiceHandler implements EventHandler {
     public void ensureHighUrgencyForIncidentsWithUrgentInTitle(List<Incidents> incidents) {
         for (Incidents incident : incidents) {
             if (incident.getTitle().toLowerCase(Locale.ENGLISH).contains("urgent") &&
-                    incident.getUrgencyCode() == null || !incident.getUrgencyCode().equals("H")) {
+                    (incident.getUrgencyCode() == null || !incident.getUrgencyCode().equals("H"))) {
                 incident.setUrgencyCode("H");
                 logger.info("Adjusted Urgency for incident '{}' to 'HIGH'.", incident.getTitle());
             }
