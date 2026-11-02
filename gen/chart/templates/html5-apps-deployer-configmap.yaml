@@ -1,0 +1,14 @@
+# Please do not modify this file. This file may be overwritten.
+{{- $xsuaaSecret := (lookup "v1" "Secret" .Release.Namespace (printf "%s-srv-auth" .Release.Name)) }}
+{{- $xsuaaCreds := dict }}
+{{- if $xsuaaSecret }}
+{{- $xsuaaCreds = $xsuaaSecret.data.credentials | b64dec | fromJson }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-html5-apps-deployer-configmap"
+  namespace: "{{ .Release.Namespace }}"
+data:
+  BACKEND_DESTINATIONS: >
+    [{"Authentication":"OAuth2UserTokenExchange","Name":"srv-api","ProxyType":"Internet","Type":"HTTP","URL":"https://{{ .Release.Name }}-srv-{{ .Release.Namespace }}.{{ .Values.global.domain }}","sap.cloud.service":"incidentmanagement.service","tokenServiceURL":"{{ $xsuaaCreds.url }}/oauth/token","clientId":"{{ $xsuaaCreds.clientid }}","clientSecret":"{{ $xsuaaCreds.clientsecret }}"}]

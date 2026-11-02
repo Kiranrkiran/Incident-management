@@ -1,0 +1,106 @@
+# yaml-language-server: $schema=./values.schema.json
+
+global:
+  domain: a5af386.kyma.ondemand.com
+  imagePullSecret:
+    name: docker-registry
+  image:
+    registry: docker.io
+    tag: v6
+srv:
+  bindings:
+    auth:
+      serviceInstanceName: xsuaa
+    db:
+      serviceInstanceName: hana
+    destination:
+      serviceInstanceName: destination
+  image:
+    repository: kiranryadav/incident-management-srv
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+  resources:
+    limits:
+      ephemeral-storage: 1G
+      memory: 1G
+    requests:
+      ephemeral-storage: 1G
+      cpu: 1000m
+      memory: 1G
+  health:
+    liveness:
+      path: /actuator/health/liveness
+    readiness:
+      path: /actuator/health/readiness
+xsuaa:
+  serviceOfferingName: xsuaa
+  servicePlanName: application
+  parameters:
+    tenant-mode: dedicated
+    oauth2-configuration:
+      redirect-uris:
+        - https://*.{{ tpl .Values.global.domain . }}/**
+    xsappname: incident-management-{{ .Release.Namespace }}
+identity:
+  serviceOfferingName: identity
+  servicePlanName: application
+  parameters:
+    display-name: incident-management-{{ .Release.Namespace }}
+    oauth2-configuration:
+      redirect-uris:
+        - https://*.{{ tpl .Values.global.domain . }}/**
+hana-deployer:
+  image:
+    repository: kiranryadav/incident-management-hana-deployer
+  bindings:
+    hana:
+      serviceInstanceName: hana
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 1G
+    requests:
+      cpu: 1000m
+      memory: 1G
+hana:
+  serviceOfferingName: hana
+  servicePlanName: hdi-shared
+destination:
+  serviceOfferingName: destination
+  servicePlanName: lite
+  parameters:
+    version: 1.0.0
+    HTML5Runtime_enabled: true
+html5-apps-repo-host:
+  serviceOfferingName: html5-apps-repo
+  servicePlanName: app-host
+content-agent-service:
+  serviceOfferingName: content-agent
+  servicePlanName: application
+html5-apps-deployer:
+  env:
+    SAP_CLOUD_SERVICE: incidentmanagement.service
+  image:
+    repository: kiranryadav/incident-management-html5-deployer
+  bindings:
+    xsuaa:
+      serviceInstanceName: xsuaa
+    destination:
+      serviceInstanceName: destination
+    html5-apps-repo:
+      serviceInstanceName: html5-apps-repo-host
+    content-agent-service:
+      serviceInstanceName: content-agent-service
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 1G
+    requests:
+      cpu: 1000m
+      memory: 1G
+  envFrom:
+    - configMapRef:
+        name: "{{ .Release.Name }}-html5-apps-deployer-configmap"
+backendDestinations:
+  srv-api:
+    service: srv
